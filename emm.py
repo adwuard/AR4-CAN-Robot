@@ -1,40 +1,10 @@
 """
-Created Date: 4 Jul 2022
+Created Date: 19 Dec 2023
 Author: Edward Lai
-Copyright (c) 2022 Vibe, Inc.
+Copyright (c) 2023 Edward.
 ----------------------------------------------------------------------
-This is a driver and implementation of the Vibe Audio Lab DUT Turntable.
-The turentable is equipped with High performance FOC Servo Motor. Motor is communicated
-through CAN Bus Protocol. The turntable is also equiped with an `Eathernet to CAN converter`.
-Once the Converter's IP is setup properly. (see Datasheet  E810 DTU for more setup guide) You 
-will be able to send and recieve Can bus message throught SocketCan/TCP Socket . The data format 
-of the docket is also implemented here.   
-
-Key Features to FOC Motor API
-- Check Motor Status
-- Check Encoder Position
-- GET/SET PID value of speed/toruqe/position
-- Control motor with Speed FOC
-- Control motor with Toruqe FOC
-- Control motor with Position FOC (This is what turntable uses)
-- Other Misc Getters and Setters.
 
 
-Foc Motor API is NOT thread save. Please make API request in sequential order.
-
-
-    CAN PROTOCOL SPECS
-    ⦁	CAN总线
-    ⦁	参数
-    总线接口：CAN
-    波特率：1Mbps
-    ⦁	报文格式
-    标识符：单电机指令发送：0x140 + ID(1~32)
-            多电机指令发送：0x280        
-            回复：0x240 + ID(1~32)
-    帧格式：数据帧
-    帧类型：标准帧
-    DLC：8字节
 """
 
 import binascii
