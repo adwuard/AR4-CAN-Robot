@@ -10,6 +10,8 @@ Copyright (c) 2023 Edward.
 import binascii
 import time
 import struct
+import serial
+
 
 
 # User changable constants
@@ -97,7 +99,7 @@ class EMMV5_COMMAND:
 
 class HwProtocolInterfaceBase:
     """
-    Factory class for platform specific communication protocol implementation.
+    Base class for platform specific communication protocol implementation.
     """
 
     def __init__(self) -> None:
@@ -113,9 +115,9 @@ class HwProtocolInterfaceBase:
         raise NotImplemented
 
 
-class SerialPortDeiver(HwProtocolInterfaceBase):
+class SerialPort(HwProtocolInterfaceBase):
     """
-    Implements the Serial communication for generic platform that supports serial communication
+    Implements the Serial communication for platforms that supports lib `serial` serial communication
     """
 
     def __init__(self, serial_instance) -> None:
@@ -247,7 +249,7 @@ class EMMV5_MOROT:
         self, dir, speed, accel, pulse, absolute_mode=True, wait_broadcast_signal=False
     ):
         """
-        motor_addr + 0xFD + dir[1] + speed[2] +  accel[1] + pulse[4] + 相对/绝对模式标志[1] + broadcast[1] + crc[1]
+        motor_addr + 0xFD + dir[1] + speed[2] +  accel[1] + pulse[4] + relative/absolute flag[1] + broadcast[1] + crc[1]
 
         Data format:
         - dir: (0x00=CW/ 0x01=CCW)
@@ -408,7 +410,6 @@ class EMMV5_MOROT:
         return _handle_resp(self.send_and_recv(mesg))
 
     def write_zeroing_params(self, zero_params_dic: dict):
-        """ """
         raise NotImplemented
 
         cmd = EMMV5_COMMAND.CMD_W_ZEROING_PARAMS
@@ -474,15 +475,11 @@ class EMMV5_MOROT:
         mesg = bytearray([self.motor_id, cmd, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
 
+    # Not Tested
     def set_current_position_as_zero(self):
         """
-        命令格式： 地址 + 0x0A + 0x6D + 校验字节
-        命令返回： 地址 + 0x0A + 状态码 + 校验字节
-        命令示例： 发送 01 0A 6D 6B， 正确返回 01 0A 02 6B， 错误命令返回 01 00 EE 6B
-        数据解析： 将当前位置角度、 位置误差、 脉冲数等全部清零。
+        reset current angle, position error, and pulse coun to zero
         """
-        raise NotImplemented
-
         cmd = EMMV5_COMMAND.CMD_W_SET_CURRENT_POS_ZREO
 
         def _handle_resp(mesg):
@@ -492,39 +489,34 @@ class EMMV5_MOROT:
                 raise Exception("Command response error")
             return True
 
-        mesg = bytearray([self.motor_id, cmd, self.crc_bit])
+        mesg = bytearray([self.motor_id, cmd, 0x6D, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
 
+    # Not Tested
     def clear_stall_error(self):
         """
-        命令功能： 解除堵转保护
-        命令格式： 地址 + 0x0E + 0x52 + 校验字节
-        命令返回： 地址 + 0x0E + 状态码 + 校验字节
-        命令示例： 发送 01 0E 52 6B， 正确返回 01 0E 02 6B， 条件不满足返回 01 0E E2 6B，
-        错误命令返回 01 00 EE 6B
-        （ 条件不满足的情况有： 没有触发到堵转保护）
-        数据解析： 电机发生堵转后， 发送该命令可以解除堵转保护。
+        If motor stall happens, this function can be used to clear the stall error.
+        If the motor is not stalled, this function will return error.
         """
-        raise NotImplemented
 
         cmd = EMMV5_COMMAND.CMD_W_CLEAR_STALL_ERROR
 
         def _handle_resp(mesg):
+            """正确返回 01 0E 02 6B,  条件不满足返回 01 0E E2 6B, 错误命令返回 01 00 EE 6B"""
             if not mesg:
                 return None
             if mesg[1] != int(cmd) or mesg[len(mesg) - 1] != self.crc_bit:
                 raise Exception("Command response error")
             return True
 
-        mesg = bytearray([self.motor_id, cmd, self.crc_bit])
+        mesg = bytearray([self.motor_id, cmd, 0x52, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
 
+    # Not Tested
     def factory_reset(self):
         """
-
+        Perform driver board factory reset. Reboot after reset is required
         """
-        raise NotImplemented
-
         cmd = EMMV5_COMMAND.CMD_W_RESET_FACTORY_SETTINGS
 
         def _handle_resp(mesg):
@@ -537,12 +529,12 @@ class EMMV5_MOROT:
         mesg = bytearray([self.motor_id, cmd, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
     
+    
+    # Not Tested
     def read_hardware_version(self):
         """
-
+        Read firmware and hardware version from the motor and perform version check
         """
-        # raise NotImplemented
-
         cmd = EMMV5_COMMAND.CMD_R_HARDWARE_FIRMWARE_VER
 
         def _handle_resp(mesg):
@@ -551,18 +543,28 @@ class EMMV5_MOROT:
             if mesg[1] != int(cmd) or mesg[len(mesg) - 1] != self.crc_bit:
                 raise Exception("Command response error")
             print(hex(mesg[0]), hex(mesg[1]), hex(mesg[2]), hex(mesg[3]), hex(mesg[4]))
-            sw_rev = int(mesg[2])
-            hw_rev = int(mesg[3])
-            return {"sw_rev": sw_rev, "hw_rev": hw_rev}
+            sw_version = int(mesg[2])
+            hw_version = int(mesg[3])
+
+            return {"sw_version": sw_version, "hw_version": hw_version}
 
         mesg = bytearray([self.motor_id, cmd, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
     
+    
+    # Not Tested
+    def  hardware_check(self):
+        """
+        This is just a hardware version/firmware version quick check. 
+        Other hardware/firmware version is not fully tested, it may also work.
+        """
+        rev = self.read_hardware_version()
+        if rev['sw_version'] < EMMV5_VERSION.FIRMWARE or rev['hw_version'] < EMMV5_VERSION.HARDWARE:
+            raise Exception("Firmware/Hardware driver version not compatiable")
+        
+    
+    # Not Tested
     def read_phase_resistance_and_inductance(self):
-        """
-
-        """
-        raise NotImplemented
 
         cmd = EMMV5_COMMAND.CMD_R_PHASE_RES_IND
 
@@ -571,8 +573,12 @@ class EMMV5_MOROT:
                 return None
             if mesg[1] != int(cmd) or mesg[len(mesg) - 1] != self.crc_bit:
                 raise Exception("Command response error")
-            return True
-
+            
+            dic = {}
+            dic["PHASE_RESISTENCE_mOhm"] = struct.unpack(">h", bytes(mesg[2:4]))[0]
+            dic["PHASE_INDUCTENCE_uH"] = struct.unpack(">h", bytes(mesg[4:6]))[0]
+            return dic
+        
         mesg = bytearray([self.motor_id, cmd, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
 
@@ -634,11 +640,8 @@ class EMMV5_MOROT:
 
 
 def main():
-    import serial
-
-    ser = serial.Serial("COM6", 115200, timeout=0.05)
-
-    em1 = EMMV5_MOROT(SerialPortDeiver(ser))
+    serial_backend = serial.Serial("COM6", 115200, timeout=0.05)
+    em1 = EMMV5_MOROT(SerialPort(serial_backend))
     print(em1.read_pid())
     # while(1):
     #     em1.set_position_control(1, 1000, 202, 2000, absolute_mode=False)
