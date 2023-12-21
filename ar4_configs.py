@@ -1,4 +1,4 @@
-class RobotConfigs:
+class AR4_CONFIG:
     joint_1 = {
         'name': 'Joint-1-Shouder-Swing',
         'id': 0x01,
@@ -176,3 +176,5 @@ class RobotConfigs:
         
         
     }
+
+AR4_CFG = AR4_CONFIG()
