@@ -8,7 +8,7 @@ Copyright (c) 2023 Edward Lai.
 import time
 import struct
 
-
+from ar4_configs import *
 class EMMV5_VERSION:
     HARDWARE = 0x78
     FIRMWARE = 0xF4
@@ -1038,21 +1038,53 @@ class ZDT_EMMV5_MOTOR:
 
 
 def main():
-    serial_backend = serial.Serial("COM6", 115200, timeout=0.05)
+    serial_backend = serial.Serial("COM6", 115200, timeout=0)
     interface = SerialPort(serial_backend)
     motor1_id = 0x01 
     motor = ZDT_EMMV5_MOTOR(interface, motor1_id)
     
     
-    print(motor.read_pid())
-    motor.set_current_position_as_zero()
     motor.enable_motor()
+    motor.clear_stall_error()
+    
+    joint = RobotConfigs.joint_2
+    
+    home = joint['steps_per_degree'] * joint['min_angle']
+    
+    print(home)
+    
+    # wait for zeroing to complete
+    
+    J2axisLimPos = 90
+    J2axisLimNeg = 90-39
+    full_angle = J2axisLimPos+J2axisLimNeg 
+    full_step = full_angle* joint['steps_per_degree']
+    
+    zero_center = J2axisLimNeg*joint['steps_per_degree']
+    print(full_angle, full_step, zero_center)
+    
+    motor.trigger_sensorless_zeroing()
+    time.sleep(8)
+    motor.clear_stall_error()
+    motor.set_position_control(0, 1000, 200, zero_center*16, absolute_mode=True)
+    time.sleep(4)
+    # motor.disable_motor()
+    
+    
+    # print(motor.read_pid())
+    # motor.set_current_position_as_zero()
+    # motor.enable_motor()
 
-    print(motor.read_motor_status_flags())
+    # print(motor.read_motor_status_flags())
     
     
     # motor.change_motor_id(0x03, save_rom=True)
-    motor.set_position_control(1, 2000, 244, 2000, absolute_mode=False)
+    # while 1:
+        # motor.set_position_control(1, 5000, 200, 10000, absolute_mode=False)
+        # time.sleep(3)
+        # motor.set_position_control(0, 5000, 200, 10000, absolute_mode=False)
+        # time.sleep(3)
+    
     
     # motor.set_openloop_current_limit(100, save_rom=False)
     

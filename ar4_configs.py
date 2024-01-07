@@ -1,106 +1,136 @@
 class AR4_CONFIG:
+    CW = 0x00
+    CCW = 0x01
+    
     joint_1 = {
-        'name': 'Joint-1-Shouder-Swing',
+        'name': 'Joint-1-Shoulder-Swing',
         'motor_addr': 0x01,
         'enable': True,
-        'motor_direction': 0, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 1,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 254,
-        'home_method': 'endswitch',
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CW,
+        'home_speed_rpm': 100,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CCW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 10, # joint shaft's to step's gear ratio
+        'steps_per_degree': 22.22222222, # steps needed relative to joint's 1 degree motion 
+        
         'max_angle': 170,
         'min_angle': -170,
-        'calibreation_angle_offset': 0,
+        'max_speed_rpm': 800, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': -8, # offset angle to joint zero position
     }
 
     joint_2 = {
         'name': 'Joint-2-Shouder-Rotate',
         'motor_addr': 0x02,
         'enable': True,
-        'motor_direction': 1, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 0,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
+        'motor_direction': CW,
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CCW,
+        'home_speed_rpm': 100,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 50, # joint shaft's to step's gear ratio
+        'steps_per_degree': 27.77777778, # steps needed relative to joint's 1 degree motion 
+        
         'max_angle': 90,
         'min_angle': -42,
-        'calibreation_angle_offset': 0,
+        'max_speed_rpm': 60, 
+        'acc_and_dec': 10, # in percentage
+        
+        'calibration_zero_offset_angle': 0, # offset angle to joint zero position
     }
 
     joint_3 = {
         'name': 'Joint-3-Elbow-Swing',
         'motor_addr': 0x03,
         'enable': True,
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 1,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CCW,
+        'home_speed_rpm': 300,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 50, # joint shaft's to step's gear ratio
+        'steps_per_degree': 27.77777778, # steps needed relative to joint's 1 degree motion 
+        
         'max_angle': 52,
         'min_angle': -89,
-        'calibreation_angle_offset': 0,
+        'max_speed_rpm': 300, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': -30, # offset angle to joint zero position
     }
 
     joint_4 = {
         'name': 'Joint-4-Elbow-Rotate',
         'motor_addr': 0x04,
         'enable': True,
-        'motor_direction': 1, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 0,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
-        'max_angle': 165,
-        'min_angle': -165,
-        'calibreation_angle_offset': 0,
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CW,
+        'home_speed_rpm': 100,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CCW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 44.8, # joint shaft's to step's gear ratio
+        'steps_per_degree': 21.77777778, # steps needed relative to joint's 1 degree motion 
+        
+        'max_angle': 90,
+        'min_angle': -90,
+        'max_speed_rpm': 300, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': -2.2, # offset angle to joint zero position
     }
 
     joint_5 = {
         'name': 'Joint-5-Wrist-Swing',
         'motor_addr': 0x05,
         'enable': True,
-        'motor_direction': 1, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 0,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CW,
+        'home_speed_rpm': 50,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CCW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 9.837111997, # joint shaft's to step's gear ratio
+        'steps_per_degree': 5.465062221, # steps needed relative to joint's 1 degree motion 
+        
         'max_angle': 105,
         'min_angle': -105,
-        'calibreation_angle_offset': 0,
+        'max_speed_rpm': 80, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': -3.85, # offset angle to joint zero position
 
     }
 
@@ -108,67 +138,82 @@ class AR4_CONFIG:
         'name': 'Joint-6-Wrist-Rotate',
         'motor_addr': 0x06,
         'enable': True,
-        'motor_direction': 1, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 1,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
-        'max_angle': 155,
-        'min_angle': -155,
-        'calibreation_angle_offset': 0,
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CW,
+        'home_speed_rpm': 50,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CCW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 20, # joint shaft's to step's gear ratio
+        'steps_per_degree': 10.55555556, # steps needed relative to joint's 1 degree motion 
+        
+        'max_angle': 180-5,
+        'min_angle': 180-5,
+        'max_speed_rpm': 300, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': 3.9, # offset angle to joint zero position
     }
 
     joint_7 = {
         'name': 'Joint-7-Gripper',
         'motor_addr': 0x07,
         'enable': True,
-        'motor_direction': 1, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 0,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
-        'max_angle': 3333,
-        'min_angle': 0,
-        'calibreation_angle_offset': 0,
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CCW,
+        'home_speed_rpm': 100,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 50, # joint shaft's to step's gear ratio
+        'steps_per_degree': 100, # steps needed relative to joint's 1 degree motion 
+        
+        'max_angle': 170,
+        'min_angle': -170,
+        'max_speed_rpm': 80, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': 0, # offset angle to joint zero position
     }
 
     joint_8 = {
         'name': 'Joint-8-Base-Slider',
         'motor_addr': 0x08,
         'enable': False,
-        'motor_direction': 1, # 1 or -1
-        'microstep': 128,
-        'steps_per_rev': 200,
-        'gear_ratio': 1,
-        'home_offset': 0,
-        'home_direction': 0,
-        'home_speed': 100,
-        'home_accel': 100,
-        'acceleration': 100,
-        'min_speed': 20,  
-        'max_speed': 100,
-        'home_method': 'endswitch',
-        'max_angle': 3333,
-        'min_angle': 0,
-        'calibreation_angle_offset': 0,
+        'microstep': 16,
+        
+        'home_method': 'endswitch', # 'endswitch' or 'sensorless'
+        'home_direction': CCW,
+        'home_speed_rpm': 100,
+        'home_timeout_ms': 20000,
+    
+    
+        # Joint motion configs
+        'motor_direction': CW, # motion direction from homing position 
+        'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
+        'gear_ratio': 50, # joint shaft's to step's gear ratio
+        'steps_per_degree': 0, # steps needed relative to joint's 1 degree motion 
+        
+        'max_angle': 170,
+        'min_angle': -170,
+        'max_speed_rpm': 80, 
+        'acc_and_dec': 80, # in percentage
+        
+        'calibration_zero_offset_angle': 0, # offset angle to joint zero position
     }
 
     joints  = [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7, joint_8]
-    homeing_sequence = [[1,2,3,4,5],[6,7,8]]
+    homeing_sequence = [[1,2,3,4,5],[6,7,8]] # split to avoid collision when toolend is attached
     dh_params = [
             [    0,    -90,  169.77,   64.2  ],
             [  -90,      0,       0,    305  ],
@@ -179,3 +224,4 @@ class AR4_CONFIG:
         ]
 
 AR4_CFG = AR4_CONFIG()
+COM_PORT = 'COM11'
