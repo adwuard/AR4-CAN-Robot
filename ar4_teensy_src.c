@@ -987,6 +987,10 @@ void sendRobotPosSpline() {
 
 }
 
+
+
+
+// [PORTING NEEDED] UPDATE JangleIn POSITION and update new forward kinematics
 void updatePos() {
 
   JangleIn[0] = (J1StepM - J1zeroStep) / J1StepDeg;
@@ -1004,7 +1008,7 @@ void updatePos() {
 }
 
 
-
+// [PORTING NEEDED] update JangleIn position and update new forward kinematics from new encoder position
 void correctRobotPos () {
 
   J1StepM = J1encPos.read() / J1encMult;
@@ -1036,9 +1040,9 @@ void correctRobotPos () {
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-//DRIVE LIMIT
+//[NO Porting Needed]DRIVE LIMIT
+// Motor direction and limiting.
 /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-
 void driveLimit(int J1Step, int J2Step, int J3Step, int J4Step, int J5Step, int J6Step, int J7Step, int J8Step, int J9Step, float SpeedVal) {
 
   //RESET COUNTERS
@@ -1582,6 +1586,7 @@ void resetEncoders() {
 
 }
 
+// [NO port] Reads encoder and updats to StepM
 void checkEncoders() {
   //read encoders
   J1EncSteps = J1encPos.read() / J1encMult;
