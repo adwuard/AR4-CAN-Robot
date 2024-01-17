@@ -50,9 +50,11 @@ class AR4_CONFIG:
         'max_angle': 90,
         'min_angle': -42,
         'max_speed_rpm': 60, 
-        'acc_and_dec': 10, # in percentage
+        # 'max_speed_rpm': 300, 
+        # 'acc_and_dec': 10, # in percentage
+        'acc_and_dec': 80, # in percentage
         
-        'calibration_zero_offset_angle': 0, # offset angle to joint zero position
+        'calibration_zero_offset_angle': 2.85, # offset angle to joint zero position
     }
 
     joint_3 = {
@@ -78,7 +80,7 @@ class AR4_CONFIG:
         'max_speed_rpm': 300, 
         'acc_and_dec': 80, # in percentage
         
-        'calibration_zero_offset_angle': -30, # offset angle to joint zero position
+        'calibration_zero_offset_angle': -30+2.85, # offset angle to joint zero position
     }
 
     joint_4 = {
@@ -153,11 +155,11 @@ class AR4_CONFIG:
         'steps_per_degree': 10.55555556, # steps needed relative to joint's 1 degree motion 
         
         'max_angle': 180-5,
-        'min_angle': 180-5,
+        'min_angle': -180+5,
         'max_speed_rpm': 300, 
         'acc_and_dec': 80, # in percentage
         
-        'calibration_zero_offset_angle': 3.9, # offset angle to joint zero position
+        'calibration_zero_offset_angle': 3.9+2.4, # offset angle to joint zero position
     }
 
     joint_7 = {
@@ -213,7 +215,7 @@ class AR4_CONFIG:
     }
 
     joints  = [joint_1, joint_2, joint_3, joint_4, joint_5, joint_6, joint_7, joint_8]
-    homeing_sequence = [[1,2,3,4,5],[6,7,8]] # split to avoid collision when toolend is attached
+    homing_sequence = [[1,2,3,4,5],[6,7,8]] # split to avoid collision when toolend is attached
     dh_params = [
             [    0,    -90,  169.77,   64.2  ],
             [  -90,      0,       0,    305  ],
