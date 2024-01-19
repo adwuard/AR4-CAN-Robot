@@ -1,0 +1,9 @@
+# Ignore Python files
+*.pyc
+*.pyo
+__pycache__/
+
+# Ignore cache files
+*.cache
+*.bak
+*.swp

@@ -100,6 +100,33 @@ class SerialPort(HwProtocolInterfaceBase):
         return data
 
 
+
+class SLCANPort(HwProtocolInterfaceBase):
+    """
+    Implements the Serial communication for platforms that supports lib `serial` serial communication
+    """
+
+    def __init__(self, can_instance) -> None:
+        super().__init__()
+
+        self.serial_can_ = can_instance
+
+    def send(self, mesg):
+        return None
+
+    def recv(self):
+        return None
+
+    def send_and_recv(self, mesg):
+        self.send(mesg)
+        data = self.recv()
+        if not data:
+            return None
+        return data
+
+
+
+
 class ZDT_EMMV5_MOTOR:
     """
     driver APIS for the EMM FOC Stepper Motor
@@ -1038,8 +1065,20 @@ class ZDT_EMMV5_MOTOR:
 
 
 def main():
-    serial_backend = serial.Serial("COM6", 115200, timeout=0)
-    interface = SerialPort(serial_backend)
+    # serial_backend = serial.Serial("COM6", 115200, timeout=0)
+    import can
+    interface = can.interface.Bus(bustype='slcan', channel='COM7', bitrate=1000000)
+    print(interface)
+    
+    interface.write()
+    msg = can.Message(arbitration_id=0x01,
+                  data=[0x3B, 0x6B],
+                  is_extended_id=False)
+    
+    
+
+    SLCANPort(interface)
+    # interface = SerialPort(serial_backend)
     motor1_id = 0x01 
     motor = ZDT_EMMV5_MOTOR(interface, motor1_id)
     

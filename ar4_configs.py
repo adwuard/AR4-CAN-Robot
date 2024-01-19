@@ -226,4 +226,4 @@ class AR4_CONFIG:
         ]
 
 AR4_CFG = AR4_CONFIG()
-COM_PORT = 'COM11'
+COM_PORT = 'COM6'
