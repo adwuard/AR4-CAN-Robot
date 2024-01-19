@@ -59,6 +59,7 @@ class Kinematics:
         cos_RX = math.cos(math.radians(RXval))
         sin_RX = math.sin(math.radians(RXval))
         
+        # calculate forward tool dh-matrix
         self.toolFrame[0][0] = cos_RZ * cos_RY
         self.toolFrame[0][1] = cos_RZ * sin_RY * sin_RX - sin_RZ * cos_RX
         self.toolFrame[0][2] = cos_RZ * sin_RY * cos_RX + sin_RZ * sin_RX
@@ -76,6 +77,7 @@ class Kinematics:
         self.toolFrame[3][2] = 0
         self.toolFrame[3][3] = 1
         
+        # reverse tool dh-matrix
         self.toolFrameRev[0][0] = self.toolFrame[0][0]
         self.toolFrameRev[0][1] = self.toolFrame[0][1]
         self.toolFrameRev[0][2] = self.toolFrame[0][2]
@@ -96,19 +98,10 @@ class Kinematics:
     def calc_dh_matrices(self, JangleIn):
         DHparams = self.DHparams
 
-        if JangleIn[0] == 0:
-            JangleIn[0] = 0.0001
-        if JangleIn[1] == 0:
-            JangleIn[1] = 0.0001
-        if JangleIn[2] == 0:
-            JangleIn[2] = 0.0001
-        if JangleIn[3] == 0:
-            JangleIn[3] = 0.0001
-        if JangleIn[4] == 0:
-            JangleIn[4] = 0.0001
-        if JangleIn[5] == 0:
-            JangleIn[5] = 0.0001
-
+        for i in range(len(JangleIn)):
+            if JangleIn[i] == 0:
+                JangleIn[i] = 0.0001
+            
         matrices = [self.J1matrix, self.J2matrix, self.J3matrix, self.J4matrix, self.J5matrix, self.J6matrix]
 
         for i in range(len(matrices)):
@@ -164,8 +157,8 @@ class Kinematics:
     
     
         
-    def SolveInverseKinematic(self):
-        
+    def SolveInverseKinematic(self, xyzuvw_In):
+        self.xyzuvw_In = xyzuvw_In
         XatJ1zero = 0.0
         YatJ1zero = 0.0
         Length_1 = 0.0
@@ -319,7 +312,7 @@ class Kinematics:
             self.JangleOut[5] = math.degrees(math.atan2(-self.R03_6matrix[2][1], self.R03_6matrix[2][0]))
         else:
             self.JangleOut[5] = math.degrees(math.atan2(self.R03_6matrix[2][1], -self.R03_6matrix[2][0]))
-
+        
         return self.JangleOut
 
 
@@ -327,14 +320,19 @@ class Kinematics:
 if __name__ == "__main__":
     kinematics = Kinematics()
     
-    joint = [10, 20, -10, -30, 45, 29]
+    # joint = [10, 20, -10, -30, 45, 29]
+    # joint = [0, 0, 0.018, 0, 59.1, 0.045]
+    # joint = [2.048, -0.936, 4.346, -1.638, 45.379, 2.835]
     joint = [0, 0, 0, 0, 0, 0]
-    kinematics.Set_Tool_Frame(0, 0, 120, 0, 0, 0)
-    xyzuvw = kinematics.SolveFowardKinematic(joint)
-    
-    joints = kinematics.SolveInverseKinematic()
+    kinematics.Set_Tool_Frame(0, 0, 0, 0, 0, 0)
     
     print("og joint", joint)    
-    print("xyzuvw", xyzuvw)
-    print("inverse", joints)
+    xyzuvw = kinematics.SolveFowardKinematic(joint)
+    print("xyzuvw", [int(j) for j in xyzuvw])
+    
+    
+    
+    xyzuvw = [323, 0, 474, 0, 90, 0]
+    joints = kinematics.SolveInverseKinematic(xyzuvw)
+    print("inverse", [int(j) for j in joints])
     
