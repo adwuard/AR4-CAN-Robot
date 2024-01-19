@@ -165,7 +165,7 @@ class AR4_CONFIG:
     joint_7 = {
         'name': 'Joint-7-Gripper',
         'motor_addr': 0x07,
-        'enable': True,
+        'enable': False,
         'microstep': 16,
         
         'home_method': 'endswitch', # 'endswitch' or 'sensorless'
