@@ -9,6 +9,7 @@ import time
 import struct
 
 from ar4_configs import *
+import can
 class EMMV5_VERSION:
     HARDWARE = 0x78
     FIRMWARE = 0xF4
@@ -101,6 +102,24 @@ class SerialPort(HwProtocolInterfaceBase):
 
 
 
+
+
+    # msg = can.Message(arbitration_id=0x0100,
+    #               data=[0x1F, 0x6B],
+    #               is_extended_id=True)
+    
+    # while 1:
+    #     try:
+    #         interface.send(msg)
+    #         print("Message sent on {}".format(interface.channel_info))
+    #     except can.CanError:
+    #         print("Message NOT sent")
+
+    #     print(interface.recv(timeout=1))
+    
+    
+from can import *
+    
 class SLCANPort(HwProtocolInterfaceBase):
     """
     Implements the Serial communication for platforms that supports lib `serial` serial communication
@@ -108,14 +127,61 @@ class SLCANPort(HwProtocolInterfaceBase):
 
     def __init__(self, can_instance) -> None:
         super().__init__()
-
         self.serial_can_ = can_instance
 
+    def __del__(self)->None:
+        self.serial_can_.shutdown()
+        
+        
     def send(self, mesg):
-        return None
+        id = int.from_bytes(mesg[0:1], byteorder='big')
+        mesg.pop(0)
+        
+        cmd = mesg[0]
+        packet_no = 0
 
+        # Split the message if it is over 8 bytes
+        while len(mesg) > 8:
+            att_id = (id << 8) + packet_no
+
+            # Consume 8 bytes
+            data = mesg[:8]
+            mesg = mesg[8:]
+            
+            # Append cmd to the beginning of data
+            mesg.insert(0, cmd)
+            
+
+            can_msg = can.Message(arbitration_id=att_id, data=data, is_extended_id=True)
+            self.serial_can_.send(can_msg)
+            packet_no += 1
+
+        if len(mesg) < 8:
+            att_id = (id << 8) + packet_no
+            
+            can_msg = can.Message(arbitration_id=att_id, data=mesg, is_extended_id=True)
+            self.serial_can_.send(can_msg)
+            
     def recv(self):
-        return None
+        data = self.serial_can_.recv(timeout=0.3)
+        
+        if data is None:
+            return
+        
+        motor_id = data.arbitration_id >> 8 
+        
+        
+        received_data = bytearray()
+        received_data.append(motor_id)  # Make motor_id the first element of the bytearray
+        
+        received_data.extend(data.data)
+
+        while data and data.data[-1] != 0x6B:
+            data = self.serial_can_.recv(timeout=0.3)
+            received_data.extend(data.data)
+            
+        # print("recv data:", received_data)
+        return received_data
 
     def send_and_recv(self, mesg):
         self.send(mesg)
@@ -269,9 +335,11 @@ class ZDT_EMMV5_MOTOR:
             raise Exception("Speed out of range")
         if accel > 255 or accel < 0:
             raise Exception("Accel out of range")
-
-        speed_fmt = struct.pack(">H", int(speed))
-        pulse_fmt = struct.pack(">I", int(pulse))
+        try:
+            speed_fmt = struct.pack(">H", int(speed))
+            pulse_fmt = struct.pack(">I", int(pulse))
+        except Exception as e:
+            print(e, "pulse", pulse, "speed", speed)
 
         mesg = (
             bytearray([self.motor_id, cmd, dir])
@@ -1065,31 +1133,35 @@ class ZDT_EMMV5_MOTOR:
 
 
 def main():
+    
+    def SomeListener(attr):
+        print(attr)
     # serial_backend = serial.Serial("COM6", 115200, timeout=0)
     import can
-    interface = can.interface.Bus(bustype='slcan', channel='COM7', bitrate=1000000)
-    print(interface)
-    
-    interface.write()
-    msg = can.Message(arbitration_id=0x01,
-                  data=[0x3B, 0x6B],
-                  is_extended_id=False)
-    
-    
+    interface = can.interface.Bus(bustype='slcan', channel='COM7', bitrate=100000)
+    # listener = SomeListener()
+
+    can_backend = SLCANPort(interface)
+    # serial_backend = SerialPort(can_backend)
+
 
     SLCANPort(interface)
     # interface = SerialPort(serial_backend)
-    motor1_id = 0x01 
-    motor = ZDT_EMMV5_MOTOR(interface, motor1_id)
     
+    SLCANPort(interface)
+    # interface = SerialPort(serial_backend)
+    motor1_id = 0x01 
+    motor = ZDT_EMMV5_MOTOR(can_backend, motor1_id)
+    
+    
+    # can_backend.send([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11])
+    # exit()
     
     motor.enable_motor()
     motor.clear_stall_error()
     
-    joint = RobotConfigs.joint_2
-    
+    joint = AR4_CFG.joint_1
     home = joint['steps_per_degree'] * joint['min_angle']
-    
     print(home)
     
     # wait for zeroing to complete
@@ -1102,11 +1174,12 @@ def main():
     zero_center = J2axisLimNeg*joint['steps_per_degree']
     print(full_angle, full_step, zero_center)
     
-    motor.trigger_sensorless_zeroing()
-    time.sleep(8)
-    motor.clear_stall_error()
-    motor.set_position_control(0, 1000, 200, zero_center*16, absolute_mode=True)
-    time.sleep(4)
+    # motor.trigger_sensorless_zeroing()
+    # time.sleep(8)
+    # motor.clear_stall_error()
+    # motor.set_position_control(0, 1000, 200, zero_center*16, absolute_mode=True)
+    # time.sleep(4)
+    
     # motor.disable_motor()
     
     
@@ -1186,3 +1259,4 @@ if __name__ == "__main__":
 
     args = parser.parse_args()
     main()
+

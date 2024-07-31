@@ -13,7 +13,7 @@ if __name__ == "__main__":
 
     joints = Joints(AR4_CFG)
 
-    joints.homing()
+    # joints.homing()
 
     # time.sleep(10)
 
@@ -257,10 +257,10 @@ if __name__ == "__main__":
 
     joints.broadcast.enable_motor()
     joints.broadcast.clear_stall_error()
-    joints.homing()
-    joints.move_joints_joint_move_motion([-160, -30, -45, -60, -80, -90, 0, 0])
-    joints.homing()
-    joints.move_joints_joint_move_motion([0,0,0,0,0,0,0,0])
+    # joints.homing()
+    # joints.move_joints_joint_move_motion([-160, -30, -45, -60, -80, -90, 0, 0])
+    # joints.homing()
+    # joints.move_joints_joint_move_motion([0,0,0,0,0,0,0,0])
 
     # while 1:
 
@@ -277,9 +277,18 @@ if __name__ == "__main__":
     #     ]
     # )
     #     # time.sleep(1)
-    # joints.move_joints_joint_move_motion([20,20,3,20,34,40,0,0])
-    #     joints.move_joints_joint_move_motion([-20,60,30,20,-10,-34,0,0])
-    #     joints.move_joints_joint_move_motion([0,0,0,0,0,0,0,0])
+    joints.move_joints_joint_move_linear_motion([43,-36,3,32.9,54,4,0,0])        
+    joints.move_joints_joint_move_linear_motion([20,-16,15,10.8,40,20,0,0])
+    # joints.move_joints_joint_move_linear_motion([20,-13,15,10.8,40,20,0,0])
+    joints.move_joints_joint_move_linear_motion([-15.9,20.3,-15.1,15.4,25.2,60.7,0,0])        
+        # joints.move_joints_joint_move_linear_motion([-15.9,10.3,-15.1,15.4,25.2,60.7,0,0])        
+        # joints.move_joints_joint_move_linear_motion([40,20,3,20,34,40,0,0])
+        # joints.move_joints_joint_move_linear_motion([-20,60,30,20,-10,-34,0,0])
+    joints.move_joints_joint_move_linear_motion([0,0,0,0,0,0,0,0])
+        
+        
+        
+        
 
     # # self.broadcast.disable_motor()
     # # time.sleep(5)

@@ -13,7 +13,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 100,
         'home_timeout_ms': 20000,
     
-    
+        'flip_joint_direction': True,
         # Joint motion configs
         'motor_direction': CCW, # motion direction from homing position 
         'steps_per_rev': 200, # 200 = 360/1.8 motor step angle
@@ -21,7 +21,7 @@ class AR4_CONFIG:
         'steps_per_degree': 22.22222222, # steps needed relative to joint's 1 degree motion 
         
         'max_angle': 170,
-        'min_angle': -170,
+        'min_angle': -145,
         'max_speed_rpm': 800, 
         'acc_and_dec': 80, # in percentage
         
@@ -32,13 +32,13 @@ class AR4_CONFIG:
         'name': 'Joint-2-Shouder-Rotate',
         'motor_addr': 0x02,
         'enable': True,
-        'motor_direction': CW,
         'microstep': 16,
         
         'home_method': 'endswitch', # 'endswitch' or 'sensorless'
         'home_direction': CCW,
         'home_speed_rpm': 100,
         'home_timeout_ms': 20000,
+        'flip_joint_direction': False,
     
     
         # Joint motion configs
@@ -68,6 +68,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 300,
         'home_timeout_ms': 20000,
     
+        'flip_joint_direction': True,
     
         # Joint motion configs
         'motor_direction': CW, # motion direction from homing position 
@@ -80,7 +81,8 @@ class AR4_CONFIG:
         'max_speed_rpm': 300, 
         'acc_and_dec': 80, # in percentage
         
-        'calibration_zero_offset_angle': -30+2.85, # offset angle to joint zero position
+        # 'calibration_zero_offset_angle': -30+2.85, # offset angle to joint zero position
+        'calibration_zero_offset_angle': 10, # offset angle to joint zero position
     }
 
     joint_4 = {
@@ -94,6 +96,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 100,
         'home_timeout_ms': 20000,
     
+        'flip_joint_direction': False,
     
         # Joint motion configs
         'motor_direction': CCW, # motion direction from homing position 
@@ -120,6 +123,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 50,
         'home_timeout_ms': 20000,
     
+        'flip_joint_direction': False,
     
         # Joint motion configs
         'motor_direction': CCW, # motion direction from homing position 
@@ -147,6 +151,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 50,
         'home_timeout_ms': 20000,
     
+        'flip_joint_direction': False,
     
         # Joint motion configs
         'motor_direction': CCW, # motion direction from homing position 
@@ -173,6 +178,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 100,
         'home_timeout_ms': 20000,
     
+        'flip_joint_direction': False,
     
         # Joint motion configs
         'motor_direction': CW, # motion direction from homing position 
@@ -199,6 +205,7 @@ class AR4_CONFIG:
         'home_speed_rpm': 100,
         'home_timeout_ms': 20000,
     
+        'flip_joint_direction': False,
     
         # Joint motion configs
         'motor_direction': CW, # motion direction from homing position 
@@ -226,4 +233,4 @@ class AR4_CONFIG:
         ]
 
 AR4_CFG = AR4_CONFIG()
-COM_PORT = 'COM6'
+COM_PORT = 'COM3'

@@ -195,7 +195,7 @@ class Kinematics:
         self.R06_rev_matrix = self.R0T_rev_matrix@self.InvtoolFrame
         self.R05_rev_matrix = self.R06_rev_matrix@self.R06_neg_matrix
 
-        # calc J1 angle
+        # calc J1 angle  n      
         if self.R05_rev_matrix[0][3] >= 0 and self.R05_rev_matrix[1][3] > 0:
             self.JangleOut[0] = math.degrees(math.atan(self.R05_rev_matrix[1][3] / self.R05_rev_matrix[0][3]))
         elif self.R05_rev_matrix[0][3] >= 0 and self.R05_rev_matrix[1][3] < 0:

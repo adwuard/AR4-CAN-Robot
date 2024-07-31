@@ -166,8 +166,9 @@ if __name__ == "__main__":
                 title_color="White",
             ),
             [
-                psg.Button("Homing", size=(10, 2), button_color=("white", "blue")),
-                psg.Button("PANIC STOP!", size=(10, 2), button_color=("white", "red")),
+                psg.Button("Homing", size=(10, 2), key='-homing-btn-', button_color=("white", "blue")),
+                psg.Button("T-Pose-Zero", size=(10, 2), key='-t-pose-zero-btn-', button_color=("white", "blue")),
+                psg.Button("PANIC STOP!", size=(10, 2), key='-panic-stop-btn-', button_color=("white", "red")),
             ],
         ],
         [
@@ -198,6 +199,19 @@ if __name__ == "__main__":
 
         isJointEvent = False
         isCarEvent = False
+
+        if event == '-t-pose-zero-btn-':
+            print("Performing T-Pose")
+            joints.move_joints_joint_move_motion([0,0,0,0,0,0,0,0], wait_arrived=False)
+            
+        if event == '-homing-btn-':
+            print("Performing Homing")
+            joints.homing()
+        
+        if event == '-panic-stop-btn-':
+            print("Panic STOP!!")
+            joints.stop_all_joints()
+            
 
         # Slider updates input-box, and vice-versa
         for i in range(len(joints.joints)):
@@ -279,18 +293,22 @@ if __name__ == "__main__":
                 isCarEvent=True
             
                 
-        print(values)
+        # print(values)
         
         
         
         if isJointEvent:
             print(ui_joints_target)
+            joints.move_joints_joint_move_linear_motion(ui_joints_target, wait_arrived= False)
+            
             ui_xyzuvw_target = kinematics.SolveFowardKinematic(ui_joints_target)
             update_xyzuvw_render = True
         
         if isCarEvent:
             print(ui_xyzuvw_target)
             ui_joints_target = kinematics.SolveInverseKinematic(ui_xyzuvw_target)
+            joints.move_joints_joint_move_linear_motion(ui_joints_target, wait_arrived= False)
+            
             update_joint_render = True
 
         # print(values)
