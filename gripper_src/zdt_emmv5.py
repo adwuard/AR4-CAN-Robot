@@ -7,12 +7,9 @@ Copyright (c) 2023 Edward Lai.
 
 import time
 import struct
-
-import binascii
 import time
-
 from ar4_configs import *
-import can
+
 class EMMV5_VERSION:
     HARDWARE = 0x78
     FIRMWARE = 0xF4
@@ -212,9 +209,10 @@ class SocketCAN(HwProtocolInterfaceBase):
                     # print("err", e)
                     return None
         
+        mesg = bytearray(mesg)
+        
         id = int.from_bytes(mesg[0:1], byteorder='big')
         mesg.pop(0)
-        
         cmd = mesg[0]
         packet_no = 0
 
@@ -228,90 +226,15 @@ class SocketCAN(HwProtocolInterfaceBase):
             
             # Append cmd to the beginning of data
             mesg.insert(0, cmd)
-            data = self.build_send_socket_can_frame(id, data)
-            self.send(data)  # Pass the raw data to the send method
-
+            data = self.build_send_socket_can_frame(att_id, data)
             _write(data)
             packet_no += 1
+            time.sleep(.1)
 
         if len(mesg) < 8:
             att_id = (id << 8) + packet_no
             data = self.build_send_socket_can_frame(att_id, mesg)
             _write(data)
-    
-from can import *
-    
-class SLCANPort(HwProtocolInterfaceBase):
-    """
-    Implements the Serial communication for platforms that supports lib `serial` serial communication
-    """
-
-    def __init__(self, can_instance) -> None:
-        super().__init__()
-        self.serial_can_ = can_instance
-
-    def __del__(self)->None:
-        self.serial_can_.shutdown()
-        
-        
-    def send(self, mesg):
-        id = int.from_bytes(mesg[0:1], byteorder='big')
-        mesg.pop(0)
-        
-        cmd = mesg[0]
-        packet_no = 0
-
-        # Split the message if it is over 8 bytes
-        while len(mesg) > 8:
-            att_id = (id << 8) + packet_no
-
-            # Consume 8 bytes
-            data = mesg[:8]
-            mesg = mesg[8:]
-            
-            # Append cmd to the beginning of data
-            mesg.insert(0, cmd)
-            
-
-            can_msg = can.Message(arbitration_id=att_id, data=data, is_extended_id=True)
-            self.serial_can_.send(can_msg)
-            packet_no += 1
-
-        if len(mesg) < 8:
-            att_id = (id << 8) + packet_no
-            
-            can_msg = can.Message(arbitration_id=att_id, data=mesg, is_extended_id=True)
-            self.serial_can_.send(can_msg)
-            
-    def recv(self):
-        data = self.serial_can_.recv(timeout=0.3)
-        
-        if data is None:
-            return
-        
-        motor_id = data.arbitration_id >> 8 
-        
-        
-        received_data = bytearray()
-        received_data.append(motor_id)  # Make motor_id the first element of the bytearray
-        
-        received_data.extend(data.data)
-
-        while data and data.data[-1] != 0x6B:
-            data = self.serial_can_.recv(timeout=0.3)
-            received_data.extend(data.data)
-            
-        # print("recv data:", received_data)
-        return received_data
-
-    def send_and_recv(self, mesg):
-        self.send(mesg)
-        data = self.recv()
-        if not data:
-            return None
-        return data
-
-
 
 
 class ZDT_EMMV5_MOTOR:
@@ -1008,8 +931,8 @@ class ZDT_EMMV5_MOTOR:
             flags = {}
             flags["MOTOR_ENABLED"] = bool(status & 0x01)
             flags["MOTOR_ARRIVED_TARGET"] = bool(status & 0x02)
-            flags["MOTOR_STALL"] = bool(status & 0x04)
-            flags["MOTOR_STALL_PROTECT_ENABLED"] = bool(status & 0x08)
+            flags["MOTOR_STALL_PROTECT_ENABLED"] = bool(status & 0x04)
+            flags["MOTOR_STALL"] = bool(status & 0x08)
             return flags
 
         mesg = bytearray([self.motor_id, cmd, self.crc_bit])
@@ -1251,133 +1174,3 @@ class ZDT_EMMV5_MOTOR:
         mesg = bytearray([self.motor_id, cmd, 0x71, save_rom, enable_x10_scale, self.crc_bit])
         return _handle_resp(self.send_and_recv(mesg))
     
-
-
-def main():
-    
-    def SomeListener(attr):
-        print(attr)
-    # serial_backend = serial.Serial("COM6", 115200, timeout=0)
-    import can
-    interface = can.interface.Bus(bustype='slcan', channel='COM7', bitrate=100000)
-    # listener = SomeListener()
-
-    can_backend = SLCANPort(interface)
-    # serial_backend = SerialPort(can_backend)
-
-
-    SLCANPort(interface)
-    # interface = SerialPort(serial_backend)
-    
-    SLCANPort(interface)
-    # interface = SerialPort(serial_backend)
-    motor1_id = 0x01 
-    motor = ZDT_EMMV5_MOTOR(can_backend, motor1_id)
-    
-    
-    # can_backend.send([0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x10, 0x11])
-    # exit()
-    
-    motor.enable_motor()
-    motor.clear_stall_error()
-    
-    joint = AR4_CFG.joint_1
-    home = joint['steps_per_degree'] * joint['min_angle']
-    print(home)
-    
-    # wait for zeroing to complete
-    
-    J2axisLimPos = 90
-    J2axisLimNeg = 90-39
-    full_angle = J2axisLimPos+J2axisLimNeg 
-    full_step = full_angle* joint['steps_per_degree']
-    
-    zero_center = J2axisLimNeg*joint['steps_per_degree']
-    print(full_angle, full_step, zero_center)
-    
-    # motor.trigger_sensorless_zeroing()
-    # time.sleep(8)
-    # motor.clear_stall_error()
-    # motor.set_position_control(0, 1000, 200, zero_center*16, absolute_mode=True)
-    # time.sleep(4)
-    
-    # motor.disable_motor()
-    
-    
-    # print(motor.read_pid())
-    # motor.set_current_position_as_zero()
-    # motor.enable_motor()
-
-    # print(motor.read_motor_status_flags())
-    
-    
-    # motor.change_motor_id(0x03, save_rom=True)
-    # while 1:
-        # motor.set_position_control(1, 5000, 200, 10000, absolute_mode=False)
-        # time.sleep(3)
-        # motor.set_position_control(0, 5000, 200, 10000, absolute_mode=False)
-        # time.sleep(3)
-    
-    
-    # motor.set_openloop_current_limit(100, save_rom=False)
-    
-    # while(1):
-    #     time.sleep(1)
-        # print(motor.read_pos(), motor.read_pulse_count(), motor.read_pos_error())
-    #     motor.set_position_control(0, 2000, 244, 2000, absolute_mode=False)
-    #     time.sleep(1)
-    #     print(motor.read_pos(), motor.read_pulse_count(), motor.read_pos_error())
-
-    # motor.enable_motor(enable=False)
-
-    # while 1:
-    # print(motor.read_linear_encoder())
-    # time.sleep(0.2)
-
-    # print(motor.read_zeroing_params())
-
-    # params = motor.read_zeroing_params()
-    # params["ZEROING_MODE"] = "direction"
-    # params["ZEROING_SPEED_RPM"] = 31
-    # print(motor.write_zeroing_params(params))
-
-    # print("status", motor.read_zeroing_status())
-    # motor.trigger_sensor_zeroing()
-    # print("status", motor.read_zeroing_status())
-    # time.sleep(1)
-    # motor.abort_zeroing()
-    # print("status", motor.read_zeroing_status())
-
-
-    # print("new id", motor.)
-    
-    # dict = motor.read_driver_status()
-    # for k in dict:
-        # print(k, "--> ", dict[k])
-    
-
-if __name__ == "__main__":
-    import serial
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Process some integers.")
-    # parser.add_argument(
-    # "--ip", type=str, default=HOST, help="ip address of the can bus"
-    # )
-    # parser.add_argument("--port", type=int, default=PORT, help="port of the can bus")
-    # parser.add_argument(
-    # "--setangle", type=int, help="set the angle of the turntable", default=None
-    # )
-
-    # parser.add_argument(
-    # "--calibrate", action="store_true", help="calibrate the turntable"
-    # )
-    # parser.add_argument(
-    # "--test_sequence",
-    # action="store_true",
-    # help="test sequence [0-360] rotate in 45 degree increments",
-    # )
-
-    args = parser.parse_args()
-    main()
-
