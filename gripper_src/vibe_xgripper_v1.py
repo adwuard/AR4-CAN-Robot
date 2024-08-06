@@ -76,33 +76,6 @@ class Vibe_XGripper_V1:
         print("Position Error: {:.2f}%".format(self.motor_ctx.read_pos_error()))
         print("==============================================")
     
-    # def set_speed_mm_per_sec(self, speed_mm_per_sec):
-    #     self.rpm_speed_mm_per_min = speed_mm_per_sec * 60
-    #     self.rpm_speed_mm_per_min = int(self.rpm_speed_mm_per_min)    
-    #     print("rpm", (self.rpm_speed_mm_per_min / self.steps_per_mm)*3.7*2)    
-    #     return
-    
-    # def register_cb(self, on_arrival_cb = None, on_stall_cb = None):
-    #     if on_arrival_cb:
-    #         self.on_arrival_cb = on_arrival_cb
-    #     if on_stall_cb:
-    #         self.on_stall_cb = on_stall_cb
-    
-    
-    # def _on_arrival(self):
-    #     logger.info("EVENT: Arrived at target")
-    #     self.busy = False
-    #     if self.on_arrival_cb:
-    #         self.on_arrival_cb()
-    #     return
-
-    # def _on_stall(self):
-    #     logger.info("EVENT: Motor Stalled!!")
-    #     self.busy = False
-    #     if self.on_stall_cb:
-    #         self.on_stall_cb()
-    #     return
-    
     def zero_gripper(self):
         def on_zeroed_cb():
             logger.info("Zeroing completed")
@@ -349,9 +322,3 @@ if __name__ == "__main__":
     
     exit(0)
     
-    
-    
-                
-    
-        
-        

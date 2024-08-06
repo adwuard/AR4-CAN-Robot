@@ -8,7 +8,6 @@ Copyright (c) 2023 Edward Lai.
 import time
 import struct
 import time
-from ar4_configs import *
 
 class EMMV5_VERSION:
     HARDWARE = 0x78
